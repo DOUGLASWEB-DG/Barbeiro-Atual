@@ -58,9 +58,13 @@ export default function LoginPage() {
         {/* Logo */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 border border-primary/20 rounded-2xl mb-4">
-            <Scissors className="w-8 h-8 text-primary" />
+          <img 
+                src="/assets/logo-macedo.png" 
+                alt="Logo" 
+                className="w-full h-full object-contain p-1.5" 
+              />
           </div>
-          <h1 className="text-3xl font-bold font-serif text-foreground">BarberOS</h1>
+          <h1 className="text-3xl font-bold font-serif text-foreground">BARBEIRO ATUAL</h1>
           <p className="text-sm text-muted-foreground mt-1">Sistema de Gestão</p>
         </div>
 
@@ -81,7 +85,7 @@ export default function LoginPage() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@barberos.com"
+                placeholder="email@exemple.com"
                 required
                 autoComplete="email"
                 autoFocus
@@ -135,18 +139,12 @@ export default function LoginPage() {
             </Button>
           </form>
 
-          {/* Dica */}
-          <div className="mt-6 pt-4 border-t border-border">
-            <p className="text-xs text-muted-foreground text-center">
-              Credenciais padrão: <span className="text-foreground font-medium">admin@barberos.com</span> / <span className="text-foreground font-medium">admin123</span>
-            </p>
-          </div>
-        </div>
+         </div>
 
         {/* Link para voltar */}
         <div className="text-center mt-4">
           <a href="/" className="text-xs text-muted-foreground hover:text-primary transition-colors">
-            ← Voltar para o site
+            Voltar para o site
           </a>
         </div>
       </div>

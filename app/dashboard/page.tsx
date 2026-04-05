@@ -25,13 +25,37 @@ import { Skeleton } from '@/components/ui/skeleton'
 const fetcher = (url: string) => fetch(url).then((r) => r.json())
 
 export default function DashboardPage() {
-  const { data, isLoading } = useSWR('/api/dashboard', fetcher, { refreshInterval: 30000 })
+  const { data, error, isLoading } = useSWR('/api/dashboard', fetcher, {
+    refreshInterval: 30000,
+  })
 
   if (isLoading) {
     return <DashboardSkeleton />
   }
 
-  const { revenue, totalClients, appointmentStats, todayAppointments, recentTransactions, goals, chartData } = data ?? {}
+  if (error) {
+    return (
+      <div className="text-center py-20">
+        <h2 className="text-xl font-semibold text-destructive">
+          Oops! Algo deu errado.
+        </h2>
+        <p className="text-muted-foreground mt-2">
+          Não foi possível carregar os dados do dashboard. Tente novamente mais
+          tarde.
+        </p>
+      </div>
+    )
+  }
+
+  const {
+    revenue,
+    totalClients,
+    appointmentStats,
+    todayAppointments,
+    recentTransactions,
+    goals,
+    chartData,
+  } = data ?? {}
 
   return (
     <div className="mx-auto max-w-7xl space-y-6 animate-fade-in">

@@ -17,6 +17,7 @@ export async function GET(req: NextRequest) {
 
     if (minimal) {
       const clients = await prisma.client.findMany({
+        where: { isActive: true },
         select: { id: true, name: true, phone: true },
         orderBy: { name: 'asc' },
       })
@@ -24,14 +25,15 @@ export async function GET(req: NextRequest) {
     }
 
     const clients = await prisma.client.findMany({
-      where: search
-        ? {
-            OR: [
-              { name: { contains: search } },
-              { phone: { contains: search } },
-            ],
-          }
-        : undefined,
+      where: {
+        isActive: true,
+        ...(search && {
+          OR: [
+            { name: { contains: search, mode: 'insensitive' } },
+            { phone: { contains: search, mode: 'insensitive' } },
+          ],
+        }),
+      },
       include: {
         _count: { select: { appointments: true } },
         appointments: {

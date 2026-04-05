@@ -37,7 +37,17 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${playfair.variable} min-h-[100dvh] bg-zinc-950 font-sans text-foreground antialiased`}
       >
-        <TopLoader />
+        <TopLoader
+          color="#F59E0B"
+          initialPosition={0.08}
+          crawlSpeed={200}
+          height={3}
+          crawl={true}
+          showSpinner={false}
+          easing="ease"
+          speed={200}
+          shadow="0 0 10px #F59E0B,0 0 5px #F59E0B"
+        />
         {children}
         <Toaster
           position="top-center"
@@ -51,9 +61,9 @@ export default function RootLayout({
               title: 'text-zinc-100 font-semibold',
               description: 'text-zinc-400',
               success:
-                '!border-emerald-500/40 !bg-zinc-900 [&_[data-title]]:text-emerald-400 [&_[data-description]]:text-emerald-200/80',
+                '!border-emerald-500/40 !bg-zinc-900 !text-emerald-400',
               error:
-                '!border-red-400/45 !bg-zinc-900 [&_[data-title]]:text-red-400 [&_[data-description]]:text-red-200/80',
+                '!border-red-400/45 !bg-zinc-900 !text-red-400',
               warning:
                 '!border-amber-400/45 !bg-zinc-900 [&_[data-title]]:text-amber-300 [&_[data-description]]:text-amber-100/80',
               info: '!border-sky-400/40 !bg-zinc-900 [&_[data-title]]:text-sky-300',

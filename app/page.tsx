@@ -158,6 +158,7 @@ export default function LandingPage() {
                 <ArrowRight className="w-4 h-4" />
               </Button>
             </Link>
+             
             <a href={buildWhatsAppLink()} target="_blank" rel="noopener noreferrer">
               <Button variant="outline" size="lg" className="h-12 px-7 text-base border-success/40 text-success hover:bg-success/10 gap-2">
                 <MessageCircle className="w-4 h-4" />
@@ -330,7 +331,7 @@ export default function LandingPage() {
         <div className="grid sm:grid-cols-3 gap-4">
           {[
             { icon: MapPin, label: 'Endereço', value: 'Av. Carlos Gomes, 1234 — Porto Velho, RO' },
-            { icon: Phone, label: 'Telefone', value: '(69) 9 9999-9999' },
+            { icon: Phone, label: 'Telefone', value: '(69) 9 8105-0537' },
             { icon: Instagram, label: 'Instagram', value: '@barberos.pvh' },
           ].map(({ icon: Icon, label, value }) => (
             <div key={label} className="bg-card border border-border rounded-xl p-5 flex flex-col items-center text-center gap-3">

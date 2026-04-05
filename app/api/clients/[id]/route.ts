@@ -33,7 +33,11 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params
-    await prisma.client.delete({ where: { id } })
+    // Soft delete: inativar em vez de deletar
+    await prisma.client.update({
+      where: { id },
+      data: { isActive: false },
+    })
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error('[Clients DELETE]', error)

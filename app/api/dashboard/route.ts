@@ -5,110 +5,86 @@ import { startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth, endOfMonth 
 export async function GET() {
   try {
     const now = new Date()
-    const todayStart = startOfDay(now)
-    const todayEnd = endOfDay(now)
-    const weekStart = startOfWeek(now, { weekStartsOn: 1 })
-    const weekEnd = endOfWeek(now, { weekStartsOn: 1 })
     const monthStart = startOfMonth(now)
-    const monthEnd = endOfMonth(now)
+    const weekStart = startOfWeek(now, { weekStartsOn: 1 })
+    const todayStart = startOfDay(now)
 
-    // Today's appointments
-    const todayAppointments = await prisma.appointment.findMany({
-      where: {
-        date: { gte: todayStart, lte: todayEnd },
-        status: { not: 'CANCELED' },
-      },
-      include: {
-        client: true,
-        service: true,
-      },
-      orderBy: { date: 'asc' },
-    })
+    // --- Otimização: Buscas em Paralelo ---
+    const [totalClients, goals, todayAppointments] = await Promise.all([
+      prisma.client.count({ where: { isActive: true } }),
+      prisma.goal.findMany({
+        where: { startDate: { lte: now }, endDate: { gte: now } },
+      }),
+      prisma.appointment.findMany({
+        where: {
+          date: { gte: todayStart, lte: endOfDay(now) },
+          status: { not: 'CANCELED' },
+        },
+        include: { client: true, service: true },
+        orderBy: { date: 'asc' },
+      }),
+    ])
 
-    // Revenue calculations
-    const dailyRevenue = await prisma.transaction.aggregate({
-      where: {
-        type: 'INCOME',
-        date: { gte: todayStart, lte: todayEnd },
-      },
-      _sum: { amount: true },
-    })
-
-    const weeklyRevenue = await prisma.transaction.aggregate({
-      where: {
-        type: 'INCOME',
-        date: { gte: weekStart, lte: weekEnd },
-      },
-      _sum: { amount: true },
-    })
-
-    const monthlyRevenue = await prisma.transaction.aggregate({
-      where: {
-        type: 'INCOME',
-        date: { gte: monthStart, lte: monthEnd },
-      },
-      _sum: { amount: true },
-    })
-
-    // Total clients
-    const totalClients = await prisma.client.count()
-
-    // Appointments by status today
-    const pendingCount = todayAppointments.filter(a => a.status === 'PENDING').length
-    const confirmedCount = todayAppointments.filter(a => a.status === 'CONFIRMED').length
-    const completedCount = todayAppointments.filter(a => a.status === 'COMPLETED').length
-
-    // Recent transactions (last 5)
-    const recentTransactions = await prisma.transaction.findMany({
-      take: 5,
+    // --- Otimização: Uma Única Busca para Transações ---
+    // Buscamos todas as transações desde o início do mês para calcular tudo em memória
+    const transactions = await prisma.transaction.findMany({
+      where: { date: { gte: monthStart } },
       orderBy: { date: 'desc' },
     })
+    
+    // --- Processamento em Memória (Super Rápido) ---
+    let dailyRevenue = 0
+    let weeklyRevenue = 0
+    const monthlyRevenue = transactions
+      .filter(t => t.type === 'INCOME')
+      .reduce((sum, t) => sum + t.amount, 0)
+    
+    const chartDataMap = new Map<string, { income: number; expense: number }>()
 
-    // Active goals
-    const goals = await prisma.goal.findMany({
-      where: {
-        startDate: { lte: now },
-        endDate: { gte: now },
-      },
-    })
+    for (const t of transactions) {
+      if (t.type === 'INCOME') {
+        if (t.date >= weekStart) weeklyRevenue += t.amount
+        if (t.date >= todayStart) dailyRevenue += t.amount
+      }
 
-    // Revenue chart data (last 7 days)
-    const chartData = []
-    for (let i = 6; i >= 0; i--) {
-      const day = new Date(now)
-      day.setDate(day.getDate() - i)
-      const dayStart = startOfDay(day)
-      const dayEnd = endOfDay(day)
-      const income = await prisma.transaction.aggregate({
-        where: { type: 'INCOME', date: { gte: dayStart, lte: dayEnd } },
-        _sum: { amount: true },
-      })
-      const expense = await prisma.transaction.aggregate({
-        where: { type: 'EXPENSE', date: { gte: dayStart, lte: dayEnd } },
-        _sum: { amount: true },
-      })
-      chartData.push({
-        day: day.toLocaleDateString('en-US', { weekday: 'short' }),
-        income: income._sum.amount ?? 0,
-        expense: expense._sum.amount ?? 0,
-      })
+      // Dados do Gráfico (últimos 7 dias)
+      const dayKey = t.date.toISOString().slice(0, 10)
+      if (!chartDataMap.has(dayKey)) {
+        chartDataMap.set(dayKey, { income: 0, expense: 0 })
+      }
+      const dayData = chartDataMap.get(dayKey)!
+      if (t.type === 'INCOME') dayData.income += t.amount
+      else dayData.expense += t.amount
     }
 
+    const chartData = Array.from({ length: 7 }, (_, i) => {
+        const day = new Date()
+        day.setDate(day.getDate() - i)
+        const dayKey = day.toISOString().slice(0, 10)
+        const data = chartDataMap.get(dayKey) || { income: 0, expense: 0 }
+        return {
+          day: day.toLocaleDateString('en-US', { weekday: 'short' }),
+          ...data
+        }
+    }).reverse()
+    
+    const appointmentStats = {
+        total: todayAppointments.length,
+        pending: todayAppointments.filter(a => a.status === 'PENDING').length,
+        confirmed: todayAppointments.filter(a => a.status === 'CONFIRMED').length,
+        completed: todayAppointments.filter(a => a.status === 'COMPLETED').length,
+    }
+    
     return NextResponse.json({
       todayAppointments,
       revenue: {
-        daily: dailyRevenue._sum.amount ?? 0,
-        weekly: weeklyRevenue._sum.amount ?? 0,
-        monthly: monthlyRevenue._sum.amount ?? 0,
+        daily: dailyRevenue,
+        weekly: weeklyRevenue,
+        monthly: monthlyRevenue,
       },
       totalClients,
-      appointmentStats: {
-        total: todayAppointments.length,
-        pending: pendingCount,
-        confirmed: confirmedCount,
-        completed: completedCount,
-      },
-      recentTransactions,
+      appointmentStats,
+      recentTransactions: transactions.slice(0, 5),
       goals,
       chartData,
     })

@@ -10,13 +10,14 @@ datasource db {
 }
 
 model Client {
-  id          String        @id @default(cuid())
-  name        String
-  phone       String        @unique
-  email       String?
-  notes       String?
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  id           String        @id @default(cuid())
+  name         String
+  phone        String        @unique
+  email        String?
+  notes        String?
+  isActive     Boolean       @default(true) // <-- Campo para soft delete
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
   appointments Appointment[]
 }
 
