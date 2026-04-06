@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { toast } from 'sonner'
+import Link from 'next/link'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -32,15 +33,21 @@ export default function LoginPage() {
       const data = await res.json()
 
       if (!res.ok) {
-        toast.error(data.error || 'Falha no login')
+        toast.error('Falha no login', {
+          description: data.error || 'Verifique seu e-mail e senha.',
+        })
         return
       }
 
-      toast.success(`Bem-vindo, ${data.user.name}!`)
+      toast.success('Login Realizado!', {
+        description: `Bem-vindo de volta, ${data.user.name}!`,
+      })
       router.push(redirect)
       router.refresh()
     } catch {
-      toast.error('Erro ao conectar com o servidor')
+      toast.error('Erro de Conexão', {
+        description: 'Não foi possível conectar com o servidor.',
+      })
     } finally {
       setIsLoading(false)
     }
@@ -124,17 +131,10 @@ export default function LoginPage() {
             {/* Botão */}
             <Button
               type="submit"
-              disabled={isLoading}
-              className="bg-primary text-primary-foreground hover:bg-primary/90 h-11 gap-2 font-medium mt-2"
+              isLoading={isLoading}
+              className="h-11 font-medium mt-2 w-full gap-2"
             >
-              {isLoading ? (
-                <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                </svg>
-              ) : (
-                <LogIn className="w-4 h-4" />
-              )}
+              {!isLoading && <LogIn className="w-4 h-4" />}
               {isLoading ? 'Entrando...' : 'Entrar'}
             </Button>
           </form>
@@ -143,9 +143,9 @@ export default function LoginPage() {
 
         {/* Link para voltar */}
         <div className="text-center mt-4">
-          <a href="/" className="text-xs text-muted-foreground hover:text-primary transition-colors">
+          <Link href="/" className="text-xs text-muted-foreground hover:text-primary transition-colors">
             Voltar para o site
-          </a>
+          </Link>
         </div>
       </div>
     </div>

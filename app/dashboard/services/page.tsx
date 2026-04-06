@@ -14,6 +14,8 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { ServiceFormModal } from '@/components/services/service-form-modal'
 
+import { PageHeader } from '@/components/dashboard/page-header'
+
 const fetcher = (url: string) => fetch(url).then((r) => r.json())
 
 export default function ServicesPage() {
@@ -30,85 +32,102 @@ export default function ServicesPage() {
     try {
       await fetch(`/api/services/${id}`, { method: 'DELETE' })
       mutate()
-      toast.success('Serviço excluído')
+      toast.success('Sucesso!', { description: 'Serviço excluído.' })
     } catch {
-      toast.error('Falha ao excluir serviço')
+      toast.error('Erro', { description: 'Falha ao excluir serviço.' })
     }
   }
 
   return (
-    <div className="space-y-6 max-w-4xl">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-xl font-bold font-serif text-foreground">Serviços</h2>
-          <p className="text-sm text-muted-foreground mt-0.5">Gerencie seu catálogo de serviços</p>
-        </div>
+    <div className="mx-auto max-w-6xl space-y-6 animate-fade-in">
+      <PageHeader
+        title="Catálogo de Serviços"
+        description="Gerencie os serviços, preços e durações oferecidos"
+      >
         <Button
           onClick={() => { setEditingService(null); setModalOpen(true) }}
-          className="bg-primary text-primary-foreground hover:bg-primary/90 gap-2"
+          className="w-full gap-2 bg-primary text-primary-foreground hover:bg-primary/90 sm:w-auto"
         >
-          <Plus className="w-4 h-4" /> Novo Serviço
+          <Plus className="h-4 w-4" /> Novo Serviço
         </Button>
-      </div>
+      </PageHeader>
 
-      {services && services.length > 0 ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {services.map((svc: any) => (
-            <div
-              key={svc.id}
-              className="bg-card border border-border rounded-xl p-5 flex flex-col gap-4 hover:border-primary/30 transition-colors group"
-            >
-              <div className="flex items-start justify-between">
-                <div className="w-10 h-10 bg-primary/10 border border-primary/20 rounded-lg flex items-center justify-center shrink-0">
-                  <Scissors className="w-5 h-5 text-primary" />
+      {/* Lista Inteligente de Serviços */}
+      <div className="overflow-hidden rounded-3xl border border-white/10 bg-zinc-900/80 backdrop-blur-sm">
+        {services && services.length > 0 ? (
+          <div className="flex flex-col gap-3 p-3 lg:gap-0 lg:divide-y lg:divide-white/5 lg:p-0">
+            {services.map((svc: any) => (
+              <div
+                key={svc.id}
+                className="group flex flex-col gap-4 rounded-2xl border border-white/10 bg-zinc-950/50 p-5 transition-all duration-150 active:scale-[0.99] active:bg-zinc-800/40 sm:flex-row sm:items-center sm:justify-between sm:gap-6 lg:rounded-none lg:border-0 lg:bg-transparent lg:px-6 lg:py-5 lg:hover:bg-white/5 lg:active:scale-100"
+              >
+                <div className="flex min-w-0 flex-1 items-start gap-4 sm:items-center">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10 shadow-[inset_0_0_10px_rgba(245,158,11,0.1)]">
+                    <Scissors className="h-5 w-5 text-primary" />
+                  </div>
+                  
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-base font-bold text-foreground">{svc.name}</p>
+                    {svc.description ? (
+                      <p className="mt-1 text-sm text-muted-foreground line-clamp-2 sm:line-clamp-1">{svc.description}</p>
+                    ) : (
+                      <p className="mt-1 text-sm text-muted-foreground italic">Sem descrição</p>
+                    )}
+                  </div>
                 </div>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity">
-                      <MoreVertical className="w-4 h-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="bg-card border-border">
-                    <DropdownMenuItem onClick={() => { setEditingService(svc); setModalOpen(true) }} className="gap-2 cursor-pointer">
-                      <Pencil className="w-4 h-4" /> Editar
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => deleteService(svc.id, svc.name)} className="gap-2 cursor-pointer text-destructive">
-                      <Trash2 className="w-4 h-4" /> Excluir
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-              <div>
-                <p className="text-base font-semibold text-foreground">{svc.name}</p>
-                {svc.description && (
-                  <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{svc.description}</p>
-                )}
-              </div>
-              <div className="flex items-center justify-between pt-2 border-t border-border">
-                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                  <Clock className="w-3.5 h-3.5" />
-                  <span>{svc.durationMins} min</span>
+
+                <div className="flex items-center justify-between gap-4 border-t border-white/5 pt-4 sm:border-t-0 sm:pt-0 sm:shrink-0">
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground bg-zinc-900/50 px-3 py-1.5 rounded-lg border border-white/5">
+                      <Clock className="w-4 h-4 text-primary" />
+                      <span>{svc.durationMins} min</span>
+                    </div>
+                    <div className="flex items-center text-primary font-bold bg-primary/10 px-3 py-1.5 rounded-lg border border-primary/20">
+                      <span className="text-base">R${svc.price.toFixed(2)}</span>
+                    </div>
+                  </div>
+
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-9 w-9 shrink-0 text-muted-foreground sm:h-8 sm:w-8 sm:opacity-100 lg:opacity-0 lg:transition-opacity lg:group-hover:opacity-100"
+                      >
+                        <MoreVertical className="h-5 w-5 sm:h-4 sm:w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="bg-popover border-border">
+                      <DropdownMenuItem onClick={() => { setEditingService(svc); setModalOpen(true) }} className="gap-2 cursor-pointer">
+                        <Pencil className="w-4 h-4" /> Editar
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => deleteService(svc.id, svc.name)} className="gap-2 cursor-pointer text-destructive focus:bg-destructive/10 focus:text-destructive">
+                        <Trash2 className="w-4 h-4" /> Excluir
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
-                <div className="flex items-center gap-1 text-primary font-bold">
-                  <span className="text-sm">R${svc.price.toFixed(2)}</span>
-                </div>
               </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-20">
+            <div className="w-20 h-20 bg-primary/10 border border-primary/20 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-[inset_0_0_20px_rgba(245,158,11,0.1)]">
+              <Scissors className="w-10 h-10 text-primary drop-shadow-[0_0_10px_rgba(245,158,11,0.4)]" />
             </div>
-          ))}
-        </div>
-      ) : (
-        <div className="text-center py-20 bg-card border border-border rounded-xl">
-          <Scissors className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
-          <p className="text-base font-semibold text-foreground mb-1">Nenhum serviço ainda</p>
-          <p className="text-sm text-muted-foreground">Adicione os serviços que você oferece</p>
-          <Button
-            onClick={() => setModalOpen(true)}
-            className="mt-4 bg-primary text-primary-foreground gap-2"
-          >
-            <Plus className="w-4 h-4" /> Adicionar Serviço
-          </Button>
-        </div>
-      )}
+            <p className="text-lg font-serif font-bold text-foreground mb-2">Nenhum serviço ainda</p>
+            <p className="text-sm text-muted-foreground max-w-sm mx-auto mb-6">
+              Monte seu catálogo de serviços, definindo preços justos e o tempo necessário para cada corte.
+            </p>
+            <Button
+              onClick={() => setModalOpen(true)}
+              className="bg-primary text-primary-foreground hover:bg-primary/90 gap-2 h-11 px-6 rounded-xl"
+            >
+              <Plus className="w-4 h-4" /> Adicionar Primeiro Serviço
+            </Button>
+          </div>
+        )}
+      </div>
 
       <ServiceFormModal
         open={modalOpen}

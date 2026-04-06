@@ -20,8 +20,8 @@ const buttonVariants = cva(
         ghost:
           "hover:bg-accent hover:text-accent-foreground active:bg-muted/50",
         link: "scale-100 text-primary underline-offset-4 hover:underline active:scale-100",
-        
-        },
+        success: "bg-green-600 text-white hover:bg-green-700",
+      },
       size: {
         default: "min-h-12 h-12 px-5 py-2",
         sm: "min-h-11 h-11 rounded-lg px-4 text-sm",
@@ -40,17 +40,30 @@ export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
   asChild?: boolean
+  isLoading?: boolean
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, ...props }, ref) => {
-    const Comp = asChild ? Slot : "button"
+  ({ className, variant, size, asChild = false, isLoading = false, children, ...props }, ref) => {
+    // Se estiver em modo loading, não podemos usar Slot (asChild) 
+    // porque o Slot exige apenas 1 filho direto e nós estamos injetando o SVG do spinner.
+    const Comp = asChild && !isLoading ? Slot : "button"
+    
     return (
       <Comp
         className={cn(buttonVariants({ variant, size, className }))}
         ref={ref}
+        disabled={props.disabled || isLoading}
         {...props}
-      />
+      >
+        {isLoading && (
+          <svg className="w-4 h-4 mr-2 animate-spin shrink-0" viewBox="0 0 24 24" fill="none">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+          </svg>
+        )}
+        {children}
+      </Comp>
     )
   }
 )

@@ -30,6 +30,8 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { cn } from '@/lib/utils'
 
+import { PageHeader } from '@/components/dashboard/page-header'
+
 const fetcher = (url: string) => fetch(url).then((r) => r.json())
 
 const statusFilters = [
@@ -61,9 +63,9 @@ export default function AppointmentsPage() {
         body: JSON.stringify({ status }),
       })
       mutate()
-      toast.success(`Agendamento marcado como ${status === 'CONFIRMED' ? 'confirmado' : status === 'COMPLETED' ? 'concluído' : 'cancelado'}`)
+      toast.success('Sucesso!', { description: `Agendamento marcado como ${status === 'CONFIRMED' ? 'confirmado' : status === 'COMPLETED' ? 'concluído' : 'cancelado'}.`})
     } catch {
-      toast.error('Falha ao atualizar agendamento')
+      toast.error('Erro', { description: 'Falha ao atualizar agendamento.' })
     }
   }
 
@@ -76,9 +78,9 @@ export default function AppointmentsPage() {
     try {
       await fetch(`/api/appointments/${id}`, { method: 'DELETE' })
       mutate()
-      toast.success('Agendamento excluído')
+      toast.success('Sucesso!', { description: 'Agendamento excluído.' })
     } catch {
-      toast.error('Falha ao excluir agendamento')
+      toast.error('Erro', { description: 'Falha ao excluir agendamento.' })
     }
   }
 
@@ -89,17 +91,15 @@ export default function AppointmentsPage() {
     const msg = encodeURIComponent(
       `Olá ${appt.client?.name}! Este é um lembrete do seu agendamento de ${appt.service?.name} no dia ${dateStr} às ${time}. Até lá!`
     )
-    window.open(`https://wa.me/${phone}?text=${msg}`, '_blank')
+    window.open(`https://wa.me/55${phone}?text=${msg}`, '_blank')
   }
 
   return (
     <div className="mx-auto max-w-6xl space-y-6 animate-fade-in">
-      {/* Cabeçalho */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h2 className="font-serif text-xl font-bold tracking-tight text-foreground">Agendamentos</h2>
-          <p className="mt-0.5 text-sm text-muted-foreground">Gerencie sua agenda diária</p>
-        </div>
+      <PageHeader
+        title="Agendamentos"
+        description="Gerencie sua agenda diária e horários"
+      >
         <Button
           onClick={() => { setEditingAppointment(null); setModalOpen(true) }}
           className="w-full gap-2 bg-primary text-primary-foreground hover:bg-primary/90 sm:w-auto"
@@ -107,16 +107,17 @@ export default function AppointmentsPage() {
           <Plus className="h-4 w-4" />
           Novo Agendamento
         </Button>
-      </div>
+      </PageHeader>
 
-      {/* Controles */}
-      <div className="flex flex-wrap items-center gap-3">
+      {/* Controles e Filtros */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
         <input
           type="date"
           value={format(selectedDate, 'yyyy-MM-dd')}
           onChange={(e) => setSelectedDate(new Date(e.target.value + 'T12:00:00'))}
-          className="min-h-12 rounded-xl border border-white/10 bg-zinc-900/80 px-4 py-2 text-sm text-foreground backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-ring"
+          className="min-h-12 rounded-xl border border-white/10 bg-zinc-900/80 px-4 py-2 text-sm text-foreground backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all duration-200"
         />
+        
         <div className="scrollbar-hide flex max-w-full snap-x snap-mandatory items-center gap-1 overflow-x-auto rounded-xl border border-white/10 bg-zinc-900/80 p-1 touch-pan-x">
           {statusFilters.map((f) => (
             <button
@@ -127,52 +128,28 @@ export default function AppointmentsPage() {
                 'shrink-0 snap-start rounded-lg px-4 py-2.5 text-xs font-semibold transition-all duration-150 active:scale-[0.98]',
                 statusFilter === f.value
                   ? 'bg-primary text-primary-foreground'
-                  : 'text-muted-foreground active:bg-white/5'
+                  : 'text-muted-foreground active:bg-white/5 hover:text-zinc-200'
               )}
             >
               {f.label}
             </button>
           ))}
         </div>
-        <div className="ml-auto flex shrink-0 items-center gap-1 rounded-xl border border-white/10 bg-zinc-900/80 p-1">
-          <button
-            type="button"
-            onClick={() => setView('list')}
-            className={cn(
-              'flex h-11 w-11 items-center justify-center rounded-lg transition-all duration-150 active:scale-95',
-              view === 'list' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground active:bg-white/5'
-            )}
-            aria-label="Lista"
-          >
-            <List className="h-5 w-5" />
-          </button>
-          <button
-            type="button"
-            onClick={() => setView('calendar')}
-            className={cn(
-              'flex h-11 w-11 items-center justify-center rounded-lg transition-all duration-150 active:scale-95',
-              view === 'calendar' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground active:bg-white/5'
-            )}
-            aria-label="Calendário"
-          >
-            <CalendarDays className="h-5 w-5" />
-          </button>
-        </div>
       </div>
 
-      {/* Cabeçalho da Data */}
+      {/* Cabeçalho da Data Atual */}
       <div className="flex items-center gap-3">
         <h3 className="text-base font-semibold text-foreground">
           {isSameDay(selectedDate, new Date()) ? 'Hoje — ' : ''}
-          {format(selectedDate, "EEEE, d 'de' MMMM 'de' yyyy", { locale: ptBR })}
+          {format(selectedDate, "EEEE, d 'de' MMMM", { locale: ptBR })}
         </h3>
-        <span className="text-xs text-muted-foreground bg-secondary px-2 py-1 rounded-full">
+        <span className="text-xs font-semibold text-primary bg-primary/10 border border-primary/20 px-2.5 py-1 rounded-full">
           {appointments?.length ?? 0} agendamentos
         </span>
       </div>
 
-      {/* Lista de Agendamentos — cards no mobile, lista densa no desktop */}
-      <div className="overflow-hidden rounded-3xl border border-white/10 bg-zinc-900/80 backdrop-blur-sm lg:rounded-2xl">
+      {/* Lista Inteligente de Agendamentos */}
+      <div className="overflow-hidden rounded-3xl border border-white/10 bg-zinc-900/80 backdrop-blur-sm">
         {appointments && appointments.length > 0 ? (
           <div className="flex flex-col gap-3 p-3 lg:gap-0 lg:divide-y lg:divide-border lg:p-0">
             {appointments.map((appt: any) => (
@@ -181,8 +158,8 @@ export default function AppointmentsPage() {
                 className="group flex flex-col gap-4 rounded-2xl border border-white/10 bg-zinc-950/50 p-4 transition-all duration-150 active:scale-[0.99] active:bg-zinc-800/40 lg:flex-row lg:items-center lg:gap-4 lg:rounded-none lg:border-0 lg:bg-transparent lg:px-5 lg:py-4 lg:hover:bg-secondary/20 lg:active:scale-100"
               >
                 <div className="flex items-start gap-3 lg:items-center">
-                  <div className="w-16 shrink-0 text-center">
-                    <p className="text-base font-bold text-foreground">
+                  <div className="w-16 shrink-0 text-center flex flex-col items-center justify-center bg-zinc-900/50 rounded-xl py-2 border border-white/5 lg:bg-transparent lg:border-0 lg:py-0">
+                    <p className="text-lg font-bold text-foreground">
                       {format(new Date(appt.date), 'HH:mm')}
                     </p>
                   </div>
@@ -207,21 +184,23 @@ export default function AppointmentsPage() {
                     <p className="text-sm font-semibold text-foreground">{appt.client?.name}</p>
                     <div className="mt-0.5 flex flex-wrap items-center gap-2">
                       <span className="text-xs text-muted-foreground">{appt.service?.name}</span>
-                      <span className="text-muted-foreground">·</span>
+                      <span className="text-muted-foreground hidden sm:inline">·</span>
                       <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                        <Clock className="h-3 w-3" />
-                        {appt.service?.durationMins}min
+                        <Clock className="h-3.5 w-3.5" />
+                        {appt.service?.durationMins} min
                       </span>
                     </div>
                     {appt.notes && (
-                      <p className="mt-1 text-xs italic text-muted-foreground">{appt.notes}</p>
+                      <p className="mt-1.5 text-xs italic text-muted-foreground line-clamp-1">
+                        &quot;{appt.notes}&quot;
+                      </p>
                     )}
                   </div>
                 </div>
 
                 <div className="flex items-center justify-between gap-3 border-t border-white/5 pt-3 lg:ml-auto lg:border-t-0 lg:pt-0">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-sm font-bold text-primary">
+                  <div className="flex flex-wrap items-center gap-3">
+                    <span className="text-sm font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-md border border-primary/20 hidden sm:inline-flex">
                       R${appt.service?.price?.toFixed(2)}
                     </span>
                     <StatusBadge status={appt.status} />
@@ -232,37 +211,37 @@ export default function AppointmentsPage() {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="shrink-0 text-muted-foreground lg:opacity-0 lg:transition-opacity lg:group-hover:opacity-100"
+                        className="h-9 w-9 shrink-0 text-muted-foreground sm:h-8 sm:w-8 sm:opacity-100 lg:opacity-0 lg:transition-opacity lg:group-hover:opacity-100"
                         aria-label="Ações do agendamento"
                       >
-                        <MoreVertical className="h-5 w-5" />
+                        <MoreVertical className="h-5 w-5 sm:h-4 sm:w-4" />
                       </Button>
                     </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="bg-card border-border">
+                  <DropdownMenuContent align="end" className="bg-popover border-border">
                     <DropdownMenuItem onClick={() => { setEditingAppointment(appt); setModalOpen(true) }} className="gap-2 cursor-pointer">
                       <Pencil className="w-4 h-4" /> Editar
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => openWhatsApp(appt)} className="gap-2 cursor-pointer text-success">
                       <MessageCircle className="w-4 h-4" /> Enviar WhatsApp
                     </DropdownMenuItem>
-                    <DropdownMenuSeparator />
+                    <DropdownMenuSeparator className="bg-white/5" />
                     {appt.status !== 'CONFIRMED' && (
-                      <DropdownMenuItem onClick={() => updateStatus(appt.id, 'CONFIRMED')} className="gap-2 cursor-pointer">
+                      <DropdownMenuItem onClick={() => updateStatus(appt.id, 'CONFIRMED')} className="gap-2 cursor-pointer focus:bg-info/10 focus:text-info text-info">
                         <CheckCircle2 className="w-4 h-4" /> Confirmar
                       </DropdownMenuItem>
                     )}
                     {appt.status !== 'COMPLETED' && (
-                      <DropdownMenuItem onClick={() => updateStatus(appt.id, 'COMPLETED')} className="gap-2 cursor-pointer text-success">
+                      <DropdownMenuItem onClick={() => updateStatus(appt.id, 'COMPLETED')} className="gap-2 cursor-pointer focus:bg-success/10 focus:text-success text-success">
                         <CheckCircle2 className="w-4 h-4" /> Marcar Concluído
                       </DropdownMenuItem>
                     )}
                     {appt.status !== 'CANCELED' && (
-                      <DropdownMenuItem onClick={() => updateStatus(appt.id, 'CANCELED')} className="gap-2 cursor-pointer text-warning">
+                      <DropdownMenuItem onClick={() => updateStatus(appt.id, 'CANCELED')} className="gap-2 cursor-pointer focus:bg-muted/10 text-muted-foreground">
                         <XCircle className="w-4 h-4" /> Cancelar
                       </DropdownMenuItem>
                     )}
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => deleteAppointment(appt.id)} className="gap-2 cursor-pointer text-destructive">
+                    <DropdownMenuSeparator className="bg-white/5" />
+                    <DropdownMenuItem onClick={() => deleteAppointment(appt.id)} className="gap-2 cursor-pointer text-destructive focus:bg-destructive/10 focus:text-destructive">
                       <Trash2 className="w-4 h-4" /> Excluir
                     </DropdownMenuItem>
                   </DropdownMenuContent>
@@ -274,16 +253,16 @@ export default function AppointmentsPage() {
         ) : (
           <div className="text-center py-16">
             <CalendarDays className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
-            <p className="text-base font-semibold text-foreground mb-1">Sem agendamentos</p>
+            <p className="text-base font-semibold text-foreground mb-1">Nenhum agendamento</p>
             <p className="text-sm text-muted-foreground">
-              Nenhum agendamento para esta data
+              Não há agendamentos para a data e filtros selecionados.
             </p>
             <Button
               onClick={() => { setEditingAppointment(null); setModalOpen(true) }}
-              variant="outline"
-              className="mt-4 border-border gap-2"
+              variant="link"
+              className="mt-4 text-primary"
             >
-              <Plus className="w-4 h-4" /> Agendar Horário
+              Criar primeiro agendamento
             </Button>
           </div>
         )}

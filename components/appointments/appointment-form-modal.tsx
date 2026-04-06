@@ -24,7 +24,7 @@ import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import { Spinner } from '@/components/ui/spinner'
+import { User, Scissors, CalendarDays, Clock, FileText, Activity } from 'lucide-react'
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json())
 
@@ -118,10 +118,14 @@ export function AppointmentFormModal({ open, onClose, appointment, onSaved, defa
 
       if (!res.ok) throw new Error('Falha na requisição')
 
-      toast.success(appointment ? 'Agendamento atualizado' : 'Agendamento criado')
+      toast.success('Sucesso!', {
+        description: appointment ? 'Agendamento atualizado.' : 'Agendamento criado.',
+      })
       onSaved()
     } catch {
-      toast.error('Falha ao salvar agendamento')
+      toast.error('Erro', {
+        description: 'Falha ao salvar agendamento.',
+      })
     }
   }
 
@@ -129,111 +133,131 @@ export function AppointmentFormModal({ open, onClose, appointment, onSaved, defa
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="border-white/10 sm:max-w-lg">
+      <DialogContent className="max-w-md border-white/10 sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="text-foreground font-serif">
             {appointment ? 'Editar Agendamento' : 'Novo Agendamento'}
           </DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 mt-2">
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5 mt-4">
           {/* Cliente */}
-          <div className="flex flex-col gap-1.5">
-            <Label className="text-sm text-foreground">Cliente</Label>
-            <Select onValueChange={(v) => setValue('clientId', v)} defaultValue={watch('clientId')}>
-              <SelectTrigger className="bg-input border-border text-foreground">
-                <SelectValue placeholder="Selecione o cliente..." />
-              </SelectTrigger>
-              <SelectContent className="bg-card border-border">
-                {clients?.map((c: any) => (
-                  <SelectItem key={c.id} value={c.id} className="text-foreground cursor-pointer">
-                    {c.name} — {c.phone}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <div className="flex flex-col gap-2">
+            <Label className="text-sm font-semibold text-foreground">Cliente *</Label>
+            <div className="relative">
+              <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
+              <Select onValueChange={(v) => setValue('clientId', v)} value={watch('clientId')}>
+                <SelectTrigger className="pl-9">
+                  <SelectValue placeholder="Selecione o cliente..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {clients?.map((c: any) => (
+                    <SelectItem key={c.id} value={c.id}>
+                      {c.name} — {c.phone}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             {errors.clientId && <p className="text-xs text-destructive">{errors.clientId.message}</p>}
           </div>
 
           {/* Serviço */}
-          <div className="flex flex-col gap-1.5">
-            <Label className="text-sm text-foreground">Serviço</Label>
-            <Select onValueChange={(v) => setValue('serviceId', v)} defaultValue={watch('serviceId')}>
-              <SelectTrigger className="bg-input border-border text-foreground">
-                <SelectValue placeholder="Selecione o serviço..." />
-              </SelectTrigger>
-              <SelectContent className="bg-card border-border">
-                {services?.map((s: any) => (
-                  <SelectItem key={s.id} value={s.id} className="text-foreground cursor-pointer">
-                    {s.name} — R${s.price} ({s.durationMins}min)
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <div className="flex flex-col gap-2">
+            <Label className="text-sm font-semibold text-foreground">Serviço *</Label>
+            <div className="relative">
+              <Scissors className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
+              <Select onValueChange={(v) => setValue('serviceId', v)} value={watch('serviceId')}>
+                <SelectTrigger className="pl-9">
+                  <SelectValue placeholder="Selecione o serviço..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {services?.map((s: any) => (
+                    <SelectItem key={s.id} value={s.id}>
+                      {s.name} — R${s.price.toFixed(2)} ({s.durationMins}min)
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             {errors.serviceId && <p className="text-xs text-destructive">{errors.serviceId.message}</p>}
             {selectedService && (
-              <p className="text-xs text-muted-foreground">Duração: {selectedService.durationMins} min</p>
+              <p className="text-xs text-muted-foreground font-medium">Tempo estimado: {selectedService.durationMins} minutos</p>
             )}
           </div>
 
           {/* Data + Horário */}
-          <div className="grid grid-cols-2 gap-3">
-            <div className="flex flex-col gap-1.5">
-              <Label className="text-sm text-foreground">Data</Label>
-              <Input
-                type="date"
-                {...register('date')}
-                className="bg-input border-border text-foreground"
-              />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col gap-2">
+              <Label className="text-sm font-semibold text-foreground">Data *</Label>
+              <div className="relative">
+                <CalendarDays className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type="date"
+                  disabled={isSubmitting}
+                  {...register('date')}
+                  className="pl-9"
+                />
+              </div>
               {errors.date && <p className="text-xs text-destructive">{errors.date.message}</p>}
             </div>
-            <div className="flex flex-col gap-1.5">
-              <Label className="text-sm text-foreground">Horário</Label>
-              <Input
-                type="time"
-                {...register('time')}
-                className="bg-input border-border text-foreground"
-              />
+            <div className="flex flex-col gap-2">
+              <Label className="text-sm font-semibold text-foreground">Horário *</Label>
+              <div className="relative">
+                <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type="time"
+                  disabled={isSubmitting}
+                  {...register('time')}
+                  className="pl-9"
+                />
+              </div>
               {errors.time && <p className="text-xs text-destructive">{errors.time.message}</p>}
             </div>
           </div>
 
           {/* Status */}
-          <div className="flex flex-col gap-1.5">
-            <Label className="text-sm text-foreground">Status</Label>
-            <Select onValueChange={(v) => setValue('status', v as any)} defaultValue={watch('status')}>
-              <SelectTrigger className="bg-input border-border text-foreground">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent className="bg-card border-border">
-                {(['PENDING', 'CONFIRMED', 'COMPLETED', 'CANCELED'] as const).map((s) => (
-                  <SelectItem key={s} value={s} className="text-foreground cursor-pointer">
-                    {statusLabels[s]}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <div className="flex flex-col gap-2">
+            <Label className="text-sm font-semibold text-foreground">Status</Label>
+            <div className="relative">
+              <Activity className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
+              <Select onValueChange={(v) => setValue('status', v as any)} value={watch('status')}>
+                <SelectTrigger className="pl-9">
+                  <SelectValue placeholder="Selecione o status..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {(['PENDING', 'CONFIRMED', 'COMPLETED', 'CANCELED'] as const).map((s) => (
+                    <SelectItem key={s} value={s}>
+                      {statusLabels[s]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
           {/* Observações */}
-          <div className="flex flex-col gap-1.5">
-            <Label className="text-sm text-foreground">Observações (opcional)</Label>
-            <Textarea
-              {...register('notes')}
-              placeholder="Alguma observação especial..."
-              rows={2}
-              className="bg-input border-border text-foreground placeholder:text-muted-foreground resize-none"
-            />
+          <div className="flex flex-col gap-2">
+            <Label className="text-sm font-semibold text-foreground">Observações (opcional)</Label>
+            <div className="relative">
+              <FileText className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+              <Textarea
+                {...register('notes')}
+                disabled={isSubmitting}
+                placeholder="Preferências, solicitações..."
+                rows={2}
+                className="pl-9 resize-none"
+              />
+            </div>
           </div>
 
           {/* Rodapé */}
-          <div className="flex justify-end gap-2 pt-2">
-            <Button type="button" variant="outline" onClick={onClose} className="border-border text-foreground">
+          <div className="flex justify-end gap-3 pt-4 border-t border-white/5 mt-2">
+            <Button type="button" variant="ghost" onClick={onClose} disabled={isSubmitting} className="text-muted-foreground hover:text-foreground">
               Cancelar
             </Button>
-            <Button type="submit" disabled={isSubmitting} className="bg-primary text-primary-foreground hover:bg-primary/90 gap-2">
-              {isSubmitting && <Spinner className="w-3.5 h-3.5" />}
-              {appointment ? 'Atualizar' : 'Criar'} Agendamento
+            <Button type="submit" isLoading={isSubmitting} className="px-6">
+              {appointment ? 'Salvar Alterações' : 'Criar Agendamento'}
             </Button>
           </div>
         </form>

@@ -9,7 +9,7 @@ export async function GET(req: NextRequest) {
     const now = new Date()
 
     // ─── Dados mensais por período ────────────────────────────────────
-    const monthlyData = []
+    const monthlyData: { month: string; receitas: number; despesas: number; saldo: number }[] = []
     for (let i = period - 1; i >= 0; i--) {
       const date = subMonths(now, i)
       const start = startOfMonth(date)

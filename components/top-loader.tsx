@@ -5,11 +5,15 @@ import NextTopLoader from 'nextjs-toploader'
 export function TopLoader() {
   return (
     <NextTopLoader
-      color="#FBBF24"
+      color="#F59E0B"
+      initialPosition={0.08}
+      crawlSpeed={200}
       height={3}
-      crawlSpeed={380}
+      crawl={true}
       showSpinner={false}
-      shadow="0 0 12px rgba(251, 191, 36, 0.35)"
+      easing="ease"
+      speed={200}
+      shadow="0 0 10px #F59E0B,0 0 5px #F59E0B"
     />
   )
 }

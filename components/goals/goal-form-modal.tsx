@@ -22,7 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Spinner } from '@/components/ui/spinner'
+import { Target, Type, Calendar, DollarSign } from 'lucide-react'
 
 const schema = z.object({
   title: z.string().min(1, 'Título é obrigatório'),
@@ -107,10 +107,10 @@ export function GoalFormModal({ open, onClose, onSaved }: Props) {
       })
 
       if (!res.ok) throw new Error('Falha ao salvar')
-      toast.success('Meta criada!')
+      toast.success('Sucesso!', { description: 'Meta criada com sucesso.' })
       onSaved()
     } catch {
-      toast.error('Falha ao criar meta')
+      toast.error('Erro', { description: 'Falha ao criar meta.' })
     }
   }
 
@@ -121,84 +121,103 @@ export function GoalFormModal({ open, onClose, onSaved }: Props) {
           <DialogTitle className="text-foreground font-serif">Criar Nova Meta</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 mt-2">
-          <div className="flex flex-col gap-1.5">
-            <Label className="text-sm text-foreground">Título da Meta *</Label>
-            <Input
-              {...register('title')}
-              placeholder="Meta de Receita Mensal"
-              className="bg-input border-border text-foreground placeholder:text-muted-foreground"
-            />
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5 mt-4">
+          <div className="flex flex-col gap-2">
+            <Label className="text-sm font-semibold text-foreground">Título da Meta *</Label>
+            <div className="relative">
+              <Target className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                {...register('title')}
+                disabled={isSubmitting}
+                placeholder="Ex: Meta de Receita Mensal"
+                className="pl-9"
+              />
+            </div>
             {errors.title && <p className="text-xs text-destructive">{errors.title.message}</p>}
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div className="flex flex-col gap-1.5">
-              <Label className="text-sm text-foreground">Tipo de Meta *</Label>
-              <Select onValueChange={(v: string) => setValue('type', v as any)} defaultValue="REVENUE">
-                <SelectTrigger className="bg-input border-border text-foreground">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-card border-border">
-                  <SelectItem value="REVENUE" className="text-foreground cursor-pointer">Receita (R$)</SelectItem>
-                  <SelectItem value="CLIENTS" className="text-foreground cursor-pointer">Novos Clientes</SelectItem>
-                  <SelectItem value="APPOINTMENTS" className="text-foreground cursor-pointer">Agendamentos</SelectItem>
-                </SelectContent>
-              </Select>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col gap-2">
+              <Label className="text-sm font-semibold text-foreground">Tipo de Meta *</Label>
+              <div className="relative">
+                <Type className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
+                <Select onValueChange={(v: string) => setValue('type', v as any)} value={watch('type')}>
+                  <SelectTrigger className="pl-9">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="REVENUE">Receita (R$)</SelectItem>
+                    <SelectItem value="CLIENTS">Novos Clientes</SelectItem>
+                    <SelectItem value="APPOINTMENTS">Agendamentos</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
-            <div className="flex flex-col gap-1.5">
-              <Label className="text-sm text-foreground">Período *</Label>
-              <Select onValueChange={(v: string) => setValue('period', v as any)} defaultValue="monthly">
-                <SelectTrigger className="bg-input border-border text-foreground">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-card border-border">
-                  <SelectItem value="daily" className="text-foreground cursor-pointer">Diário</SelectItem>
-                  <SelectItem value="weekly" className="text-foreground cursor-pointer">Semanal</SelectItem>
-                  <SelectItem value="monthly" className="text-foreground cursor-pointer">Mensal</SelectItem>
-                </SelectContent>
-              </Select>
+            <div className="flex flex-col gap-2">
+              <Label className="text-sm font-semibold text-foreground">Período *</Label>
+              <div className="relative">
+                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
+                <Select onValueChange={(v: string) => setValue('period', v as any)} value={watch('period')}>
+                  <SelectTrigger className="pl-9">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="daily">Diário</SelectItem>
+                    <SelectItem value="weekly">Semanal</SelectItem>
+                    <SelectItem value="monthly">Mensal</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
 
-          <div className="flex flex-col gap-1.5">
-            <Label className="text-sm text-foreground">Valor da Meta *</Label>
-            <Input
-              {...register('targetAmount')}
-              type="number"
-              step="1"
-              min="1"
-              placeholder="Ex: 3000"
-              className="bg-input border-border text-foreground placeholder:text-muted-foreground"
-            />
+          <div className="flex flex-col gap-2">
+            <Label className="text-sm font-semibold text-foreground">Valor da Meta *</Label>
+            <div className="relative">
+              <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-primary" />
+              <Input
+                {...register('targetAmount')}
+                disabled={isSubmitting}
+                type="number"
+                step="1"
+                min="1"
+                placeholder="Ex: 3000"
+                className="pl-9 font-medium"
+              />
+            </div>
             {errors.targetAmount && <p className="text-xs text-destructive">{errors.targetAmount.message}</p>}
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div className="flex flex-col gap-1.5">
-              <Label className="text-sm text-foreground">Data Início</Label>
-              <Input
-                type="date"
-                {...register('startDate')}
-                className="bg-input border-border text-foreground"
-              />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col gap-2">
+              <Label className="text-sm font-semibold text-foreground">Data Início</Label>
+              <div className="relative">
+                <Input
+                  type="date"
+                  {...register('startDate')}
+                  disabled={isSubmitting}
+                  className="pl-3"
+                />
+              </div>
             </div>
-            <div className="flex flex-col gap-1.5">
-              <Label className="text-sm text-foreground">Data Fim</Label>
-              <Input
-                type="date"
-                {...register('endDate')}
-                className="bg-input border-border text-foreground"
-              />
+            <div className="flex flex-col gap-2">
+              <Label className="text-sm font-semibold text-foreground">Data Fim</Label>
+              <div className="relative">
+                <Input
+                  type="date"
+                  {...register('endDate')}
+                  disabled={isSubmitting}
+                  className="pl-3"
+                />
+              </div>
             </div>
           </div>
 
-          <div className="flex justify-end gap-2 pt-2">
-            <Button type="button" variant="outline" onClick={onClose} className="border-border text-foreground">
+          <div className="flex justify-end gap-3 pt-4 border-t border-white/5 mt-2">
+            <Button type="button" variant="ghost" onClick={onClose} disabled={isSubmitting} className="text-muted-foreground hover:text-foreground">
               Cancelar
             </Button>
-            <Button type="submit" disabled={isSubmitting} className="bg-primary text-primary-foreground hover:bg-primary/90 gap-2">
-              {isSubmitting && <Spinner className="w-3.5 h-3.5" />}
+            <Button type="submit" isLoading={isSubmitting} className="px-6">
               Criar Meta
             </Button>
           </div>

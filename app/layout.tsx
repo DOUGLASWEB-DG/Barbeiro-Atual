@@ -37,17 +37,7 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${playfair.variable} min-h-[100dvh] bg-zinc-950 font-sans text-foreground antialiased`}
       >
-        <TopLoader
-          color="#F59E0B"
-          initialPosition={0.08}
-          crawlSpeed={200}
-          height={3}
-          crawl={true}
-          showSpinner={false}
-          easing="ease"
-          speed={200}
-          shadow="0 0 10px #F59E0B,0 0 5px #F59E0B"
-        />
+        <TopLoader />
         {children}
         <Toaster
           position="top-center"

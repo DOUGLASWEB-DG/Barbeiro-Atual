@@ -120,10 +120,14 @@ export function TransactionFormModal({ open, defaultType, onClose, onSaved }: Pr
 
       if (!res.ok) throw new Error('Falha ao salvar')
 
-      toast.success(`${data.type === 'INCOME' ? 'Receita' : 'Despesa'} registrada`)
+      toast.success('Sucesso!', {
+        description: `${data.type === 'INCOME' ? 'Receita' : 'Despesa'} registrada com sucesso.`,
+      })
       onSaved()
     } catch {
-      toast.error('Falha ao salvar transação')
+      toast.error('Erro', {
+        description: 'Falha ao salvar transação.',
+      })
     }
   }
 
@@ -143,9 +147,10 @@ export function TransactionFormModal({ open, defaultType, onClose, onSaved }: Pr
             <div className="flex gap-2">
               <button
                 type="button"
+                disabled={isSubmitting}
                 onClick={() => setValue('type', 'INCOME')}
                 className={cn(
-                  'flex-1 min-h-12 rounded-xl border py-3 text-sm font-semibold transition-all duration-150 active:scale-[0.98]',
+                  'flex-1 min-h-12 rounded-xl border py-3 text-sm font-semibold transition-all duration-150 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none',
                   currentType === 'INCOME'
                     ? 'border-emerald-400/40 bg-emerald-500/15 text-emerald-400'
                     : 'border-white/10 bg-zinc-900 text-zinc-400 hover:text-zinc-200'
@@ -155,9 +160,10 @@ export function TransactionFormModal({ open, defaultType, onClose, onSaved }: Pr
               </button>
               <button
                 type="button"
+                disabled={isSubmitting}
                 onClick={() => setValue('type', 'EXPENSE')}
                 className={cn(
-                  'flex-1 min-h-12 rounded-xl border py-3 text-sm font-semibold transition-all duration-150 active:scale-[0.98]',
+                  'flex-1 min-h-12 rounded-xl border py-3 text-sm font-semibold transition-all duration-150 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none',
                   currentType === 'EXPENSE'
                     ? 'border-red-400/40 bg-red-500/15 text-red-400'
                     : 'border-white/10 bg-zinc-900 text-zinc-400 hover:text-zinc-200'
@@ -173,6 +179,7 @@ export function TransactionFormModal({ open, defaultType, onClose, onSaved }: Pr
             <Label className="text-sm text-foreground">Valor *</Label>
             <Input
               {...register('amount')}
+              disabled={isSubmitting}
               type="number"
               step="0.01"
               placeholder="0,00"
@@ -186,6 +193,7 @@ export function TransactionFormModal({ open, defaultType, onClose, onSaved }: Pr
             <Label className="text-sm text-foreground">Descrição *</Label>
             <Input
               {...register('description')}
+              disabled={isSubmitting}
               placeholder="Ex: Corte de cabelo, Compra de materiais"
               className="bg-input border-border text-foreground placeholder:text-muted-foreground"
             />
@@ -195,18 +203,17 @@ export function TransactionFormModal({ open, defaultType, onClose, onSaved }: Pr
           {/* Categoria */}
           <div className="flex flex-col gap-1.5">
             <Label className="text-sm text-foreground">Categoria</Label>
-            <Select onValueChange={handleCategoryChange}>
+            <Select onValueChange={handleCategoryChange} value={watch('categoryId') ? `id:${watch('categoryId')}` : watch('category')}>
               <SelectTrigger className="bg-input border-border text-foreground">
                 <SelectValue placeholder="Selecione a categoria..." />
               </SelectTrigger>
-              <SelectContent className="bg-card border-border">
+              <SelectContent>
                 {filteredCategories && filteredCategories.length > 0 ? (
                   // Categorias do banco com cores
                   filteredCategories.map((c: any) => (
                     <SelectItem
                       key={c.id}
                       value={`id:${c.id}`}
-                      className="text-foreground cursor-pointer"
                     >
                       <div className="flex items-center gap-2">
                         <span
@@ -220,7 +227,7 @@ export function TransactionFormModal({ open, defaultType, onClose, onSaved }: Pr
                 ) : (
                   // Fallback para categorias estáticas
                   fallbackCategories.map((c) => (
-                    <SelectItem key={c} value={c} className="text-foreground cursor-pointer">
+                    <SelectItem key={c} value={c}>
                       {c}
                     </SelectItem>
                   ))
@@ -234,6 +241,7 @@ export function TransactionFormModal({ open, defaultType, onClose, onSaved }: Pr
             <Label className="text-sm text-foreground">Data *</Label>
             <Input
               type="date"
+              disabled={isSubmitting}
               {...register('date')}
               className="bg-input border-border text-foreground"
             />
@@ -241,11 +249,10 @@ export function TransactionFormModal({ open, defaultType, onClose, onSaved }: Pr
           </div>
 
           <div className="flex justify-end gap-2 pt-2">
-            <Button type="button" variant="outline" onClick={onClose} className="border-border text-foreground">
+            <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting} className="border-border text-foreground">
               Cancelar
             </Button>
-            <Button type="submit" disabled={isSubmitting} className="bg-primary text-primary-foreground hover:bg-primary/90 gap-2">
-              {isSubmitting && <Spinner className="w-3.5 h-3.5" />}
+            <Button type="submit" isLoading={isSubmitting}>
               Salvar Transação
             </Button>
           </div>

@@ -15,7 +15,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
-import { Spinner } from '@/components/ui/spinner'
+import { Clock, DollarSign, Type, AlignLeft } from 'lucide-react'
 
 const schema = z.object({
   name: z.string().min(1, 'Nome é obrigatório'),
@@ -73,10 +73,15 @@ export function ServiceFormModal({ open, onClose, service, onSaved }: Props) {
       })
 
       if (!res.ok) throw new Error('Falha ao salvar')
-      toast.success(service ? 'Serviço atualizado' : 'Serviço adicionado')
+      
+      toast.success('Sucesso!', {
+        description: service ? 'Serviço atualizado.' : 'Serviço adicionado.',
+      })
       onSaved()
     } catch {
-      toast.error('Falha ao salvar serviço')
+      toast.error('Erro', {
+        description: 'Falha ao salvar serviço.',
+      })
     }
   }
 
@@ -89,36 +94,78 @@ export function ServiceFormModal({ open, onClose, service, onSaved }: Props) {
           </DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 mt-2">
-          <div className="flex flex-col gap-1.5">
-            <Label className="text-sm text-foreground">Nome do Serviço *</Label>
-            <Input {...register('name')} placeholder="Corte Clássico" className="bg-input border-border text-foreground placeholder:text-muted-foreground" />
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5 mt-4">
+          <div className="flex flex-col gap-2">
+            <Label className="text-sm font-semibold text-foreground">Nome do Serviço *</Label>
+            <div className="relative">
+              <Type className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input 
+                {...register('name')} 
+                disabled={isSubmitting} 
+                placeholder="Ex: Corte Clássico" 
+                className="pl-9" 
+              />
+            </div>
             {errors.name && <p className="text-xs text-destructive">{errors.name.message}</p>}
           </div>
 
-          <div className="flex flex-col gap-1.5">
-            <Label className="text-sm text-foreground">Descrição</Label>
-            <Textarea {...register('description')} placeholder="Breve descrição do serviço..." rows={2} className="bg-input border-border text-foreground placeholder:text-muted-foreground resize-none" />
+          <div className="flex flex-col gap-2">
+            <Label className="text-sm font-semibold text-foreground">Descrição</Label>
+            <div className="relative">
+              <AlignLeft className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+              <Textarea 
+                {...register('description')} 
+                disabled={isSubmitting} 
+                placeholder="Breve descrição do serviço..." 
+                rows={3} 
+                className="pl-9 resize-none" 
+              />
+            </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div className="flex flex-col gap-1.5">
-              <Label className="text-sm text-foreground">Preço (R$) *</Label>
-              <Input {...register('price')} type="number" step="0.01" min="0" placeholder="35,00" className="bg-input border-border text-foreground placeholder:text-muted-foreground" />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col gap-2">
+              <Label className="text-sm font-semibold text-foreground">Preço *</Label>
+              <div className="relative">
+                <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-primary" />
+                <Input 
+                  {...register('price')} 
+                  disabled={isSubmitting} 
+                  type="number" 
+                  step="0.01" 
+                  min="0" 
+                  placeholder="35,00" 
+                  className="pl-9 font-medium" 
+                />
+              </div>
               {errors.price && <p className="text-xs text-destructive">{errors.price.message}</p>}
             </div>
-            <div className="flex flex-col gap-1.5">
-              <Label className="text-sm text-foreground">Duração (min) *</Label>
-              <Input {...register('durationMins')} type="number" min="5" placeholder="30" className="bg-input border-border text-foreground placeholder:text-muted-foreground" />
+            <div className="flex flex-col gap-2">
+              <Label className="text-sm font-semibold text-foreground">Duração *</Label>
+              <div className="relative">
+                <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input 
+                  {...register('durationMins')} 
+                  disabled={isSubmitting} 
+                  type="number" 
+                  min="5" 
+                  placeholder="30" 
+                  className="pl-9" 
+                />
+                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-muted-foreground font-medium pointer-events-none">
+                  min
+                </span>
+              </div>
               {errors.durationMins && <p className="text-xs text-destructive">{errors.durationMins.message}</p>}
             </div>
           </div>
 
-          <div className="flex justify-end gap-2 pt-2">
-            <Button type="button" variant="outline" onClick={onClose} className="border-border text-foreground">Cancelar</Button>
-            <Button type="submit" disabled={isSubmitting} className="bg-primary text-primary-foreground hover:bg-primary/90 gap-2">
-              {isSubmitting && <Spinner className="w-3.5 h-3.5" />}
-              {service ? 'Atualizar' : 'Adicionar'} Serviço
+          <div className="flex justify-end gap-3 pt-4 border-t border-white/5 mt-2">
+            <Button type="button" variant="ghost" onClick={onClose} disabled={isSubmitting} className="text-muted-foreground hover:text-foreground">
+              Cancelar
+            </Button>
+            <Button type="submit" isLoading={isSubmitting} className="px-6">
+              {service ? 'Salvar Alterações' : 'Adicionar Serviço'}
             </Button>
           </div>
         </form>

@@ -69,13 +69,17 @@ export function ClientFormModal({ open, onClose, client, onSaved }: Props) {
 
       if (!res.ok) {
         const err = await res.json()
-        throw new Error(err.error || 'Falha')
+        throw new Error(err.error || 'Falha de validação.')
       }
 
-      toast.success(client ? 'Cliente atualizado' : 'Cliente adicionado')
+      toast.success('Sucesso!', {
+        description: client ? 'Cliente atualizado.' : 'Cliente adicionado.',
+      })
       onSaved()
     } catch (err: any) {
-      toast.error(err.message || 'Falha ao salvar cliente')
+      toast.error('Erro', {
+        description: err.message || 'Falha ao salvar cliente.',
+      })
     }
   }
 
