@@ -16,6 +16,9 @@
     "db:reset": "prisma migrate reset",
     "setup": "npm run db:push && npm run db:seed"
   },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
     "@prisma/client": "^6.0.0",
