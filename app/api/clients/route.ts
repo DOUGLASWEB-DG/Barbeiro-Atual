@@ -29,8 +29,8 @@ export async function GET(req: NextRequest) {
         isActive: true,
         ...(search && {
           OR: [
-            { name: { contains: search } },
-            { phone: { contains: search } },
+            { name: { contains: search, mode: 'insensitive' } },
+            { phone: { contains: search, mode: 'insensitive' } },
           ],
         }),
       },
