@@ -2,17 +2,22 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import useSWR from 'swr'
 import { Menu, Bell, MoreHorizontal, Globe, LogOut, Target } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
+import { cn } from '@/lib/utils'
+
+const fetcher = (url: string) => fetch(url).then((r) => r.json())
 
 interface TopBarProps {
   onMenuToggle: () => void
@@ -27,10 +32,20 @@ const pageTitles: Record<string, string> = {
   '/dashboard/services': 'Serviços',
 }
 
+const severityColors = {
+  INFO: 'text-blue-400 bg-blue-400/10',
+  WARNING: 'text-amber-400 bg-amber-400/10',
+  DANGER: 'text-red-400 bg-red-400/10',
+}
+
 export function TopBar({ onMenuToggle }: TopBarProps) {
   const pathname = usePathname()
   const title = pageTitles[pathname] ?? 'BarberOS'
   const today = format(new Date(), "EEEE, d 'de' MMMM 'de' yyyy", { locale: ptBR })
+
+  const { data: alertData } = useSWR('/api/finances/alerts', fetcher, { refreshInterval: 30000 })
+  const alerts = alertData?.alerts ?? []
+  const unreadCount = alertData?.unreadCount ?? 0
 
   async function handleLogout() {
     await fetch('/api/auth/logout', { method: 'POST' })
@@ -50,7 +65,7 @@ export function TopBar({ onMenuToggle }: TopBarProps) {
           <Menu className="h-5 w-5" />
         </Button>
         <div className="min-w-0">
-          <h1 className="truncate text-base font-bold tracking-tight text-foreground lg:text-lg">
+          <h1 className="truncate text-base font-bold tracking-tight text-foreground lg:text-lg uppercase font-serif">
             {title}
           </h1>
           <p className="hidden text-xs capitalize text-muted-foreground sm:block">{today}</p>
@@ -59,14 +74,70 @@ export function TopBar({ onMenuToggle }: TopBarProps) {
 
       <div className="flex shrink-0 items-center gap-1 sm:gap-2">
         
-        <Button
-          variant="ghost"
-          size="icon"
-          className="hidden text-muted-foreground sm:flex"
-          aria-label="Notificações"
-        >
-          <Bell className="h-5 w-5" />
-        </Button>
+        {/* Notificações */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="relative text-muted-foreground"
+              aria-label="Notificações"
+            >
+              <Bell className="h-5 w-5" />
+              {unreadCount > 0 && (
+                <span className="absolute right-2 top-2 flex h-2.5 w-2.5">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-destructive opacity-75"></span>
+                  <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-destructive"></span>
+                </span>
+              )}
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-80 p-0 overflow-hidden bg-zinc-900/95 backdrop-blur-xl border-white/10">
+            <div className="p-4 border-b border-white/5 flex items-center justify-between">
+              <p className="text-sm font-bold text-foreground">Notificações</p>
+              {unreadCount > 0 && (
+                <span className="px-2 py-0.5 rounded-full bg-destructive/10 text-destructive text-[10px] font-bold">
+                  {unreadCount} Novas
+                </span>
+              )}
+            </div>
+            <div className="max-h-[350px] overflow-y-auto">
+              {alerts.length > 0 ? (
+                alerts.slice(0, 5).map((alert: any) => (
+                  <DropdownMenuItem key={alert.id} asChild>
+                    <Link href="/dashboard/finances" className="flex flex-col items-start gap-1 p-4 cursor-pointer hover:bg-white/5 transition-colors">
+                      <div className="flex items-center gap-2">
+                        <span className={cn(
+                          "w-1.5 h-1.5 rounded-full shrink-0",
+                          alert.severity === 'DANGER' ? 'bg-red-500' : alert.severity === 'WARNING' ? 'bg-amber-500' : 'bg-blue-500'
+                        )} />
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                          {alert.severity === 'DANGER' ? 'Crítico' : alert.severity === 'WARNING' ? 'Atenção' : 'Info'}
+                        </span>
+                        {!alert.read && <span className="text-[10px] font-bold text-primary ml-auto">Nova</span>}
+                      </div>
+                      <p className="text-xs text-foreground leading-relaxed line-clamp-2">{alert.message}</p>
+                      <p className="text-[9px] text-muted-foreground mt-1">
+                        {format(new Date(alert.createdAt), "d 'de' MMM 'às' HH:mm", { locale: ptBR })}
+                      </p>
+                    </Link>
+                  </DropdownMenuItem>
+                ))
+              ) : (
+                <div className="p-8 text-center">
+                  <Bell className="w-8 h-8 text-muted-foreground/30 mx-auto mb-2" />
+                  <p className="text-xs text-muted-foreground">Nenhuma notificação por enquanto</p>
+                </div>
+              )}
+            </div>
+            <DropdownMenuSeparator className="bg-white/5" />
+            <DropdownMenuItem asChild>
+              <Link href="/dashboard/finances" className="w-full text-center p-3 text-xs font-bold text-primary hover:bg-primary/5 transition-colors cursor-pointer">
+                Ver todos os alertas
+              </Link>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

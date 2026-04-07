@@ -63,7 +63,7 @@ export async function GET() {
         const dayKey = day.toISOString().slice(0, 10)
         const data = chartDataMap.get(dayKey) || { income: 0, expense: 0 }
         return {
-          day: day.toLocaleDateString('en-US', { weekday: 'short' }),
+          day: day.toLocaleDateString('pt-BR', { weekday: 'short' }).replace('.', ''),
           ...data
         }
     }).reverse()

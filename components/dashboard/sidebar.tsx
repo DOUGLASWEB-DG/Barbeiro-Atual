@@ -85,13 +85,17 @@ export function Sidebar({ open, onToggle }: SidebarProps) {
     >
       {/* Logo */}
       <div className={cn('flex items-center h-16 border-b border-sidebar-border px-4 shrink-0', open ? 'gap-3' : 'justify-center')}>
-        <div className="flex items-center justify-center w-8 h-8 bg-primary rounded-lg shrink-0">
-          <Scissors className="w-4 h-4 text-primary-foreground" />
+        <div className="flex items-center justify-center w-9 h-9 bg-primary rounded-xl shrink-0 overflow-hidden shadow-[0_0_15px_rgba(245,158,11,0.2)]">
+          <img 
+            src="/assets/logo-macedo.png" 
+            alt="Logo" 
+            className="w-full h-full object-contain p-1" 
+          />
         </div>
         {open && (
           <div>
-            <p className="text-sm font-bold text-sidebar-foreground font-serif tracking-wide">BARBEARIA</p>
-            <p className="text-xs text-sidebar-foreground/50">MARCEDO</p>
+            <p className="text-sm font-bold text-sidebar-foreground font-serif tracking-wide uppercase">BARBEARIA</p>
+            <p className="text-xs text-sidebar-foreground/50 font-bold uppercase tracking-widest">MACEDO</p>
           </div>
         )}
       </div>

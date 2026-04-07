@@ -45,12 +45,21 @@ export interface ButtonProps
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, isLoading = false, children, ...props }, ref) => {
-    // Se estiver em modo loading, não podemos usar Slot (asChild) 
-    // porque o Slot exige apenas 1 filho direto e nós estamos injetando o SVG do spinner.
-    const Comp = asChild && !isLoading ? Slot : "button"
     
+    if (asChild && !isLoading) {
+      return (
+        <Slot
+          className={cn(buttonVariants({ variant, size, className }))}
+          ref={ref}
+          {...props}
+        >
+          {children}
+        </Slot>
+      )
+    }
+
     return (
-      <Comp
+      <button
         className={cn(buttonVariants({ variant, size, className }))}
         ref={ref}
         disabled={props.disabled || isLoading}
@@ -63,7 +72,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           </svg>
         )}
         {children}
-      </Comp>
+      </button>
     )
   }
 )

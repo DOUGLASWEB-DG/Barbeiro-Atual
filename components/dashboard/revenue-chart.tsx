@@ -54,30 +54,30 @@ export function RevenueChart({ data }: RevenueChartProps) {
       <div key={index} className="flex-1 flex flex-col items-center h-full group">
         <div className="relative w-full flex-1 flex items-end justify-center gap-1.5">
           
-          {/* Barra de Receita - AZUL/VERDE FORÇADO */}
+          {/* Barra de Receita */}
           <div
             className="w-full max-w-[14px] rounded-t-sm transition-all duration-500 hover:brightness-125 relative"
             style={{ 
               height: `${Math.max(incomeHeight, 2)}%`,
-              backgroundColor: '#3b82f6' // Azul vibrante para teste
+              backgroundColor: 'hsl(var(--primary))' 
             }}
           >
             {/* Valor fixo em cima da barra */}
-            <span className="absolute -top-6 left-1/2 -translate-x-1/2 text-[9px] text-blue-400 font-bold whitespace-nowrap">
+            <span className="absolute -top-6 left-1/2 -translate-x-1/2 text-[9px] text-primary font-bold whitespace-nowrap">
               {point.income > 0 ? `R$${point.income}` : ''}
             </span>
           </div>
 
-          {/* Barra de Despesa - VERMELHO FORÇADO */}
+          {/* Barra de Despesa */}
           <div
             className="w-full max-w-[14px] rounded-t-sm transition-all duration-500 hover:brightness-125 relative"
             style={{ 
               height: `${Math.max(expenseHeight, 2)}%`,
-              backgroundColor: '#ef4444' // Vermelho vibrante
+              backgroundColor: 'hsl(var(--destructive))'
             }}
           >
             {/* Valor fixo em cima da barra */}
-            <span className="absolute -top-6 left-1/2 -translate-x-1/2 text-[9px] text-red-400 font-bold whitespace-nowrap">
+            <span className="absolute -top-6 left-1/2 -translate-x-1/2 text-[9px] text-destructive font-bold whitespace-nowrap">
               {point.expense > 0 ? `R$${point.expense}` : ''}
             </span>
           </div>

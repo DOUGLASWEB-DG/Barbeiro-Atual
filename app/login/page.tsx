@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Scissors, Eye, EyeOff, LogIn } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label'
 import { toast } from 'sonner'
 import Link from 'next/link'
 
-export default function LoginPage() {
+function LoginContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const redirect = searchParams.get('redirect') || '/dashboard'
@@ -64,15 +64,15 @@ export default function LoginPage() {
       <div className="relative w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 border border-primary/20 rounded-2xl mb-4">
-          <img 
-                src="/assets/logo-macedo.png" 
-                alt="Logo" 
-                className="w-full h-full object-contain p-1.5" 
-              />
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-primary rounded-2xl mb-4 overflow-hidden shadow-[0_0_20px_rgba(245,158,11,0.3)]">
+            <img 
+              src="/assets/logo-macedo.png" 
+              alt="Logo" 
+              className="w-full h-full object-contain p-2" 
+            />
           </div>
-          <h1 className="text-3xl font-bold font-serif text-foreground">BARBEIRO ATUAL</h1>
-          <p className="text-sm text-muted-foreground mt-1">Sistema de Gestão</p>
+          <h1 className="text-3xl font-bold font-serif text-foreground uppercase tracking-tight">Barbearia Macedo</h1>
+          <p className="text-sm text-muted-foreground mt-1 uppercase tracking-widest font-medium">Painel de Gestão</p>
         </div>
 
         {/* Card de Login */}
@@ -149,5 +149,17 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <div className="w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
+      </div>
+    }>
+      <LoginContent />
+    </Suspense>
   )
 }

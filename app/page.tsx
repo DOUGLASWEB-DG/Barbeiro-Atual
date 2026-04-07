@@ -369,13 +369,17 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-border py-8 px-6">
+      <footer className="border-t border-white/10 py-8 px-6 bg-zinc-950">
         <div className="max-w-5xl mx-auto flex items-center justify-between flex-wrap gap-4">
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 bg-primary rounded flex items-center justify-center">
-              <Scissors className="w-3 h-3 text-primary-foreground" />
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center overflow-hidden shadow-lg">
+              <img 
+                src="/assets/logo-macedo.png" 
+                alt="Logo" 
+                className="w-full h-full object-contain p-1" 
+              />
             </div>
-            <span className="text-sm font-bold font-serif text-foreground">BarberOS</span>
+            <span className="text-sm font-bold font-serif text-foreground uppercase tracking-tight">Barbearia Macedo</span>
           </div>
           <p className="text-xs text-muted-foreground">
             &copy; {new Date().getFullYear()} BarberOS. Todos os direitos reservados.

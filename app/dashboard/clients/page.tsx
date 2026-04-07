@@ -160,7 +160,7 @@ export default function ClientsPage() {
                           <MoreVertical className="h-5 w-5 sm:h-4 sm:w-4" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="bg-popover border-border">
+                      <DropdownMenuContent align="end">
                         <DropdownMenuItem onClick={() => { setEditingClient(client); setModalOpen(true) }} className="gap-2 cursor-pointer">
                           <Pencil className="w-4 h-4" /> Editar
                         </DropdownMenuItem>
