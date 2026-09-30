@@ -59,15 +59,16 @@ const TIME_SLOTS = [
 ]
 
 const SERVICE_IMAGES: Record<string, string> = {
-  barba: '/assets/servico-barba.jpg',
-  coloracao: '/assets/servico-artistico.jpg',
-  corte: '/assets/servico-corte.jpg',
-  luzes: '/assets/servico-artistico.jpg',
-  nevou: '/assets/servico-artistico.jpg',
-  pezinho: '/assets/servico-listra.jpg',
-  pigmentacao: '/assets/servico-artistico.jpg',
-  selagem: '/assets/servico-corte.jpg',
-  sobrancelha: '/assets/servico-listra.jpg',
+  barba: '/assets/barba.jpeg',
+  coloracao: '/assets/coloracao.jpeg',
+  corte: '/assets/corte.jpeg',
+  combo: '/assets/combo.png',
+  luzes: '/assets/luzes.jpeg',
+  nevou: '/assets/luzes.jpeg',
+  pezinho: '/assets/corte.jpeg',
+  pigmentacao: '/assets/pigmentacao_fed.jpeg',
+  selagem: '/assets/selagem.jpeg',
+  sobrancelha: '/assets/corte.jpeg',
 }
 
 type Step = 'service' | 'barber' | 'datetime' | 'details' | 'success'
@@ -147,7 +148,19 @@ function getServiceImage(serviceName: string) {
     .toLowerCase()
     .trim()
 
-  return SERVICE_IMAGES[normalizedName] || '/assets/servico-corte.jpg'
+  if (SERVICE_IMAGES[normalizedName]) {
+    return SERVICE_IMAGES[normalizedName]
+  }
+
+  if (normalizedName.includes('combo')) return '/assets/combo.png'
+  if (normalizedName.includes('selagem')) return '/assets/selagem.jpeg'
+  if (normalizedName.includes('coloracao')) return '/assets/coloracao.jpeg'
+  if (normalizedName.includes('luzes')) return '/assets/luzes.jpeg'
+  if (normalizedName.includes('pigmentacao')) return '/assets/pigmentacao_fed.jpeg'
+  if (normalizedName.includes('barba')) return '/assets/barba.jpeg'
+  if (normalizedName.includes('corte')) return '/assets/corte.jpeg'
+
+  return '/assets/corte.jpeg'
 }
 
 interface CalendarPickerProps {

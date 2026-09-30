@@ -41,28 +41,42 @@ export const tenantConfig = {
        price: 35,
        duration: '30 min',
        desc: 'Corte na tesoura ou máquina sob medida para seu estilo',
-       image: '/assets/servico-corte.jpg' // Coloque a imagem em public/assets/servico-corte.jpg
+       image: '/assets/corte.jpeg'
     }, 
     {
        name: 'Barba',
        price: 20, 
        duration: '20 min', 
        desc: 'Alinhamento e modelagem de barba com acabamento impecável',
-       image: '/assets/servico-barba.jpg' // Coloque a imagem em public/assets/servico-barba.jpg
+       image: '/assets/barba.jpeg'
     },
     {
-       name: 'Artistico', 
-       price: 60, 
-       duration: '40 min', 
-       desc: 'Cortes artísticos e desenhos na barba ou cabelo, feitos com precisão e criatividade',
-       image: '/assets/servico-artistico.jpg' // Coloque a imagem em public/assets/servico-artistico.jpg
+       name: 'Combo (Corte + Barba)', 
+       price: 50, 
+       duration: '50 min', 
+       desc: 'Pacote completo de corte e barba com alinhamento perfeito',
+       image: '/assets/combo.png'
     },
     { 
-      name: 'Pesonalizado', 
-      price: 25, 
-      duration: '25 min', 
-      desc: 'Corte Personalizado, feito sob medida para o seu estilo e preferências, garantindo um visual único e exclusivo.',
-      image: '/assets/servico-listra.jpg' // Coloque a imagem em public/assets/servico-listra.jpg
+      name: 'Pigmentação', 
+      price: 45, 
+      duration: '40 min', 
+      desc: 'Realce do corte ou barba com pigmentação e disfarce',
+      image: '/assets/pigmentacao_fed.jpeg'
+    },
+    { 
+      name: 'Luzes / Platinado', 
+      price: 80, 
+      duration: '90 min', 
+      desc: 'Visual moderno com luzes, reflexos ou platinado nevou',
+      image: '/assets/luzes.jpeg'
+    },
+    { 
+      name: 'Selagem', 
+      price: 60, 
+      duration: '60 min', 
+      desc: 'Alinhamento capilar, hidratação e redução de frizz',
+      image: '/assets/selagem.jpeg'
     },
   ]
 };
